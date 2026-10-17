@@ -1,4 +1,6 @@
-# Tavola per zaino — configuratore 3D
+# Backbone — configuratore 3D di una tavola per zaino
+
+**Sito:** <https://follen99.github.io/Backbone/>
 
 Sito statico per progettare e scaricare una tavola strutturale leggera da stampare in 3D, da mettere nella tasca laptop di uno zaino senza struttura.
 
@@ -9,21 +11,18 @@ Sito statico per progettare e scaricare una tavola strutturale leggera da stampa
 
 Il generatore è scritto in Python (`py/tavola_zaino.py`) e gira **nel browser** grazie a [Pyodide](https://pyodide.org): non serve nessun server, quindi il sito funziona su GitHub Pages.
 
-## Pubblicare su GitHub Pages
+## Pubblicazione
 
-1. Crea un repository (ad esempio `tavola-zaino`) e carica **tutto il contenuto di questa cartella nella radice** del repository, compreso il file `.nojekyll`.
-2. Su GitHub apri **Settings → Pages**.
-3. In *Build and deployment* scegli **Source: Deploy from a branch**, poi **Branch: `main`**, cartella **`/ (root)`**, e salva.
-4. Dopo un minuto il sito è online su `https://<tuo-utente>.github.io/<nome-repository>/`.
+Il sito è pubblicato con GitHub Pages dal branch `master`, cartella `/ (root)`: <https://follen99.github.io/Backbone/>.
 
-Non c'è nessun passaggio di build: ogni push su `main` aggiorna il sito.
+Non c'è nessun passaggio di build: ogni push su `master` aggiorna il sito.
 
 ## Provarlo in locale
 
 Il generatore gira in un Web Worker, che i browser non avviano da `file://`. Serve quindi un piccolo server:
 
 ```bash
-cd tavola-zaino-web
+cd Backbone
 python3 -m http.server 8000
 ```
 
@@ -38,7 +37,7 @@ pip install numpy shapely mapbox_earcut
 python3 py/tavola_zaino.py --dump-params parametri.json      # parametri di default
 python3 py/tavola_zaino.py --params parametri.json \
         --variants whole,split_keys,split_plain \
-        --formats stl,3mf --quality standard --out tavola.zip
+        --formats stl,3mf --quality standard --out backbone.zip
 ```
 
 Il file JSON di parametri è lo stesso che il sito salva con **Salva parametri** e riapre con **Apri parametri**.
@@ -72,3 +71,7 @@ Il valore di default arriva sempre da Python, quindi non va ripetuto nel JavaScr
 - I pezzi nella cartella `piatto` sono già ruotati e centrati per il piatto.
 - Incolla con epossidica sulle facce di taglio e nelle sedi, su un piano dritto, seguendo l'ordine di montaggio indicato nel file `LEGGIMI.txt`: ogni pezzo si cala dall'alto sui precedenti.
 - Prima di stampare tutto, prova un incastro: il gioco si regola con *Gioco per lato*.
+
+## Licenza
+
+Codice rilasciato con licenza [MIT](LICENSE). `assets/vendor/earcut.min.js` è distribuito con la sua licenza ISC (`assets/vendor/earcut.LICENSE.txt`).

@@ -979,7 +979,7 @@ def stl_binary(m, name="tavola"):
     rec = np.zeros(len(m.F), dtype=dt)
     rec["n"] = _normals(m)
     rec["v"] = m.V[m.F]
-    head = (f"{name} - tavola zaino v{VERSION}").encode()[:80].ljust(80, b" ")
+    head = (f"{name} - Backbone v{VERSION}").encode()[:80].ljust(80, b" ")
     return head + struct.pack("<I", len(m.F)) + rec.tobytes()
 
 
@@ -1003,7 +1003,7 @@ def stl_ascii(m, name="tavola"):
 
 def obj_text(objs):
     """objs: lista di (nome, Mesh)."""
-    out, off = [f"# tavola zaino v{VERSION}\n"], 1
+    out, off = [f"# Backbone v{VERSION}\n"], 1
     for name, m in objs:
         out.append(f"o {name}\n")
         out.append(_fmt("v %.5f %.5f %.5f\n", m.V))
@@ -1024,7 +1024,7 @@ def threemf(objs):
     model = ('<?xml version="1.0" encoding="UTF-8"?>\n'
              '<model unit="millimeter" xml:lang="it-IT" '
              'xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">'
-             f'<metadata name="Application">Tavola zaino v{VERSION}</metadata>'
+             f'<metadata name="Application">Backbone v{VERSION}</metadata>'
              f'<resources>{"".join(res)}</resources><build>{"".join(items)}</build></model>')
     ct = ('<?xml version="1.0" encoding="UTF-8"?>\n<Types xmlns="http://schemas.openxmlformats.org/'
           'package/2006/content-types"><Default Extension="rels" ContentType="application/'
@@ -1053,7 +1053,7 @@ def _arrange(meshes, gap=10.0):
 
 
 def readme_text(P, reports):
-    L = [f"TAVOLA PER ZAINO - file generati (v{VERSION})", ""]
+    L = [f"BACKBONE - tavola per zaino, file generati (v{VERSION})", ""]
     L.append(f"Tavola: {P.length:.0f} x {P.width:.0f} mm, spessore {P.t_center:g}/{P.t_edge:g} mm "
              f"(centro/bordi), reticolo {P.cell:g} mm, nervature {P.rib:g} mm.")
     L.append(f"Piatto: {P.bed_x:g} x {P.bed_y:g} mm (margine {P.bed_margin:g} mm).")

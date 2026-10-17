@@ -388,7 +388,7 @@ function stamp() {
 
 function bindActions() {
   $("#btn-save").addEventListener("click", () =>
-    download(new Blob([JSON.stringify(state.params, null, 1)], { type: "application/json" }), `tavola_parametri_${stamp()}.json`));
+    download(new Blob([JSON.stringify(state.params, null, 1)], { type: "application/json" }), `backbone_parametri_${stamp()}.json`));
   $("#file-load").addEventListener("change", async (e) => {
     const f = e.target.files[0];
     if (!f) return;
@@ -496,7 +496,7 @@ function onExportProgress(msg) {
 }
 
 function onExport(msg) {
-  const name = `tavola_zaino_${stamp()}.zip`;
+  const name = `backbone_${stamp()}.zip`;
   download(new Blob([msg.zip], { type: "application/zip" }), name);
   const mb = (msg.zip.byteLength / 1e6).toLocaleString("it-IT", { maximumFractionDigits: 1 });
   $("#export-status").textContent = `Scaricato ${name} (${mb} MB).`;
