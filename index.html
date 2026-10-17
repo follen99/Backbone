@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tavola per zaino · configuratore</title>
+  <meta name="description" content="Configura e scarica la tavola strutturale leggera da stampare in 3D per la tasca laptop dello zaino: fori isogrid, sezionamento automatico per il piatto e incastri.">
+  <meta name="theme-color" content="#E8EDEF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121A1F" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='6' width='26' height='20' rx='4' fill='%231F6B5A'/%3E%3Cpath d='M8 21 13 12 18 21Z M14 11h10l-5 9Z' fill='%23E8EDEF'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="4"/><path d="M8 21 13 12 18 21Z M14 11h10l-5 9Z"/></svg>
+        <div>
+          <h1>Tavola per zaino</h1>
+          <p class="brand-sub">Struttura leggera stampata in 3D per la tasca del laptop</p>
+        </div>
+      </div>
+      <nav class="actions" aria-label="Parametri">
+        <button class="btn ghost" id="btn-save" type="button" title="Scarica i parametri come file JSON">Salva parametri</button>
+        <label class="btn ghost" title="Apri un file di parametri JSON">
+          Apri parametri<input type="file" id="file-load" accept=".json,application/json" hidden>
+        </label>
+        <button class="btn ghost" id="btn-link" type="button" title="Copia un link con questa configurazione">Copia link</button>
+        <button class="btn ghost" id="btn-reset" type="button">Ripristina</button>
+        <button class="btn primary" id="btn-export-open" type="button">Esporta</button>
+      </nav>
+    </header>
+
+    <aside class="panel" id="controls" aria-label="Parametri della tavola">
+      <!-- generato da app.js -->
+    </aside>
+
+    <main class="stage" aria-label="Anteprima 3D">
+      <div class="viewport" id="viewport">
+        <canvas class="topo" id="topo" aria-hidden="true"></canvas>
+        <div class="gl" id="gl"></div>
+
+        <div class="viewbar" role="toolbar" aria-label="Vista">
+          <div class="seg" role="radiogroup" aria-label="Variante mostrata">
+            <button type="button" role="radio" aria-checked="false" data-view="whole">Intera</button>
+            <button type="button" role="radio" aria-checked="true" data-view="split">Sezionata</button>
+          </div>
+          <div class="seg" role="radiogroup" aria-label="Inquadratura">
+            <button type="button" role="radio" aria-checked="true" data-cam="persp">3D</button>
+            <button type="button" role="radio" aria-checked="false" data-cam="top">Dall'alto</button>
+          </div>
+          <label class="explode" title="Allontana i pezzi per vedere tagli e incastri">
+            <span>Esplodi</span>
+            <input type="range" id="explode" min="0" max="40" step="1" value="8">
+          </label>
+          <label class="swatch" title="Colore del filamento">
+            <input type="color" id="color" value="#E07A32">
+          </label>
+        </div>
+
+        <div class="busy" id="busy" hidden><span class="dot"></span><span id="busy-text">Aggiorno…</span></div>
+
+        <div class="boot" id="boot">
+          <div class="boot-card">
+            <p class="boot-title">Avvio del generatore</p>
+            <p class="boot-text" id="boot-text">Preparo l'ambiente Python nel browser…</p>
+            <div class="bar"><div id="boot-bar"></div></div>
+            <p class="boot-note">Il primo avvio scarica circa 15 MB; poi resta in cache.</p>
+          </div>
+        </div>
+      </div>
+
+      <section class="readout" aria-live="polite">
+        <div class="alert" id="alert" hidden></div>
+        <dl class="figures" id="figures"></dl>
+        <ul class="pieces" id="pieces"></ul>
+      </section>
+    </main>
+  </div>
+
+  <dialog class="drawer" id="export">
+    <form method="dialog" class="drawer-inner" id="export-form">
+      <header class="drawer-head">
+        <h2>Esporta i file</h2>
+        <button class="btn ghost icon" value="close" aria-label="Chiudi">✕</button>
+      </header>
+
+      <fieldset>
+        <legend>Cosa esportare</legend>
+        <label class="check"><input type="checkbox" name="v_whole" checked> <span>Tavola intera <small>non sezionata</small></span></label>
+        <label class="check"><input type="checkbox" name="v_split_keys" checked> <span>Sezionata con incastri</span></label>
+        <label class="check"><input type="checkbox" name="v_split_plain"> <span>Sezionata senza incastri <small>solo tagli, da incollare</small></span></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Formati</legend>
+        <label class="check"><input type="checkbox" name="f_stl" checked> <span>STL <small>binario, per ogni slicer</small></span></label>
+        <label class="check"><input type="checkbox" name="f_3mf"> <span>3MF <small>ogni pezzo come oggetto separato</small></span></label>
+        <label class="check"><input type="checkbox" name="f_obj"> <span>OBJ</span></label>
+        <label class="check"><input type="checkbox" name="f_stl_ascii"> <span>STL ASCII <small>file molto più grandi</small></span></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Pezzi sezionati</legend>
+        <label class="check"><input type="checkbox" name="bed_layout" checked> <span>Un file per pezzo, già ruotato e centrato per il piatto</span></label>
+        <label class="check"><input type="checkbox" name="combined" checked> <span>Un file con tutti i pezzi affiancati</span></label>
+        <label class="check"><input type="checkbox" name="assembled" checked> <span>La tavola assemblata, con i pezzi in posizione</span></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Qualità della mesh</legend>
+        <div class="seg wide" role="radiogroup">
+          <label><input type="radio" name="quality" value="draft"> <span>Bozza</span></label>
+          <label><input type="radio" name="quality" value="standard" checked> <span>Standard</span></label>
+          <label><input type="radio" name="quality" value="fine"> <span>Fine</span></label>
+        </div>
+        <label class="check"><input type="checkbox" name="include_json" checked> <span>Includi parametri, report e istruzioni di stampa</span></label>
+      </fieldset>
+
+      <div class="drawer-foot">
+        <div class="export-status" id="export-status" aria-live="polite"></div>
+        <div class="bar thin" id="export-bar" hidden><div></div></div>
+        <button class="btn primary block" id="btn-export" type="button">Genera e scarica lo ZIP</button>
+      </div>
+    </form>
+  </dialog>
+
+  <template id="tpl-error-boot">
+    <p>Il generatore non è partito. Controlla la connessione e ricarica la pagina; se apri il file in locale, avvia un server (vedi README).</p>
+  </template>
+
+  <script type="module" src="assets/app.js"></script>
+</body>
+</html>

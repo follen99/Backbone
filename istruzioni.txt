@@ -1,0 +1,32 @@
+NOME DEL PROGETTO: «Backbone»
+
+Contesto: in questa cartella c'è un sito statico (configuratore 3D di una tavola per zaino, generatore Python che gira nel browser con Pyodide) da pubblicare su GitHub Pages. Il repository GitHub l'ho già creato io. Non cambiare la logica del generatore né l'interfaccia: fai solo il setup qui sotto.
+
+1. Struttura
+   - Se il contenuto è dentro una sottocartella "tavola-zaino-web/", sposta tutto (compresi .nojekyll e i file nascosti) nella radice del repository ed elimina la cartella vuota.
+   - In radice devono esserci: index.html, assets/, py/, README.md, .nojekyll. Elimina eventuali __pycache__ e file .zip.
+   - Crea un .gitignore con: __pycache__/, *.pyc, .DS_Store, node_modules/, *.zip, .venv/.
+
+2. Nome
+   - Ricava uno "slug" dal nome indicato sopra: minuscolo, senza accenti, spazi → trattini (per i nomi dei file scaricati usa i trattini bassi).
+   - Sostituisci il nome visibile "Tavola per zaino" con il nome del progetto in: <title> e <h1> di index.html, titolo del README.md, intestazione di LEGGIMI.txt, header STL e metadata 3MF in py/tavola_zaino.py. Puoi lasciare "tavola per zaino" come sottotitolo o descrizione dove ha senso.
+   - Cambia il prefisso dei file scaricati: "tavola_zaino_" e "tavola_parametri_" in assets/app.js diventano "<slug>_" e "<slug>_parametri_".
+   - NON rinominare py/tavola_zaino.py, la chiave localStorage "tavola-zaino:v1" né gli identificatori interni.
+   - Cerca con grep le occorrenze rimaste di "Tavola per zaino" / "tavola zaino" e mostrami cosa hai lasciato e perché.
+
+3. Verifiche
+   - pip install numpy shapely mapbox_earcut
+   - python3 py/tavola_zaino.py --variants whole,split_keys --formats stl,3mf --out /tmp/test.zip  → deve finire senza errori, con 4 pezzi e 8 incastri.
+   - node --check assets/worker.js; per app.js e viewer.js usa: node --input-type=module --check < file
+   - Avvia python3 -m http.server 8000 e, se puoi aprire un browser, controlla che la pagina si avvii senza errori in console. Altrimenti dimmi di farlo io.
+
+4. README
+   - Leggi il remote con git remote get-url origin e inserisci nel README l'URL del sito: https://<utente>.github.io/<repo>/
+   - Chiedimi quale licenza aggiungere (suggerisci MIT) prima di creare un file LICENSE. earcut è già incluso con la sua licenza ISC in assets/vendor/.
+
+5. Pubblicazione
+   - Fai un commit unico, ad esempio "Prima versione di «NOME»", e push su main.
+   - Se è disponibile la CLI gh autenticata, attiva GitHub Pages da main / root:
+     gh api -X POST repos/<owner>/<repo>/pages -f "source[branch]=main" -f "source[path]=/"
+     (se Pages è già attivo, usa -X PUT). Altrimenti dimmi esattamente dove cliccare in Settings → Pages.
+   - Alla fine dammi l'URL del sito e un riepilogo dei file modificati.
